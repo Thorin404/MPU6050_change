@@ -54,9 +54,11 @@ MPU6050 mpu;
 // more info, see: http://en.wikipedia.org/wiki/Gimbal_lock)
 #define OUTPUT_READABLE_YAWPITCHROLL
 
-
+char incomingByte;
+#define BUZ_PIN 11
 #define LED_PIN 13 // (Arduino is 13, Teensy is 11, Teensy++ is 6)
 bool blinkState = false;
+int tsd;
 
 // MPU control/status vars
 bool dmpReady = false;  // set true if DMP init was successful
@@ -73,9 +75,7 @@ float euler[3];         // [psi, theta, phi]    Euler angle container
 float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 
 
-// ================================================================
 // ===               INTERRUPT DETECTION ROUTINE                ===
-// ================================================================
 
 volatile bool mpuInterrupt = false;     // indicates whether MPU interrupt pin has gone high
 void dmpDataReady() {
@@ -83,10 +83,7 @@ void dmpDataReady() {
 }
 
 
-
-// ================================================================
 // ===                      INITIAL SETUP                       ===
-// ================================================================
 
 void setup() {
     // join I2C bus (I2Cdev library doesn't do this automatically)
@@ -153,13 +150,12 @@ void setup() {
 
     // configure LED for output
     pinMode(LED_PIN, OUTPUT);
+    pinMode(BUZ_PIN, OUTPUT);
+    pinMode(8, OUTPUT);
 }
 
 
-
-// ================================================================
 // ===                    MAIN PROGRAM LOOP                     ===
-// ================================================================
 
 void loop() {
     // if programming failed, don't try to do anything
@@ -207,6 +203,25 @@ void loop() {
         // blink LED to indicate activity
         blinkState = !blinkState;
         digitalWrite(LED_PIN, blinkState);
+        //tsd = ypr[2] * 180/M_PI;
+        //analogWrite(8, tsd);
+        /*odbieranie danych
+        //if (Serial.available() > 0) {
+          //incomingByte = Serial.read();
+          if(ypr[2] * 180/M_PI < 0) {
+             //digitalWrite(11, LOW);
+             digitalWrite(8, LOW);
+          }
+          if(ypr[2] * 180/M_PI > 0 && ypr[2] * 180/M_PI < 10 ) {
+             //analogWrite(11, 31);
+             analogWrite(8, 31);
+          }
+          if(ypr[2] * 180/M_PI > 10) {
+             //analogWrite(11, 127);
+             analogWrite(8, 127);
+          }
+        //}
+        //*/
         delay(250);
     }
 }
